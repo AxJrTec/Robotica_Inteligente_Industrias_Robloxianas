@@ -44,6 +44,17 @@ class CalcError(Node):
         plt.ion()
         self.fig, self.ax = plt.subplots()
 
+        self.line_robot, = self.ax.plot([], [], label='Robot')
+        self.line_target, = self.ax.plot([], [], '--', label='Target')
+        self.point_robot, = self.ax.plot([], [], 'ro')
+        self.point_target, = self.ax.plot([], [], 'go')
+
+        self.ax.set_title("Posición Robot vs Target")
+        self.ax.set_xlabel("X")
+        self.ax.set_ylabel("Y")
+        self.ax.legend()
+        self.ax.grid()
+
         self.get_logger().info('Gráfica en tiempo real iniciada')
 
     # Callbacks
@@ -62,13 +73,14 @@ class CalcError(Node):
         ex = self.x_d - self.x
         ey = self.y_d - self.y
         eth = self.th_d - self.th
-        eth = np.arctan2(np.sin(eth), np.cos(eth))
+        #eth = np.arctan2(np.sin(eth), np.cos(eth))
 
         msg = Vector3()
         msg.x = ex
         msg.y = ey
         msg.z = eth
         self.error_pub.publish(msg)
+        self.get_logger().info(f"E_x: {ex}, E_y: {ey}, E_th: {eth}")
 
         self.x_data.append(self.x)
         self.y_data.append(self.y)
@@ -81,16 +93,16 @@ class CalcError(Node):
             self.xd_data.pop(0)
             self.yd_data.pop(0)
 
-        self.ax.plot(self.x_data, self.y_data, label='Robot')
-        self.ax.plot(self.xd_data, self.yd_data, '--', label='Target')
+        self.line_robot.set_data(self.x_data, self.y_data)
+        self.line_target.set_data(self.xd_data, self.yd_data)
 
-        self.ax.scatter(self.x, self.y)
-        self.ax.scatter(self.x_d, self.y_d)
-        self.ax.set_title("Posición Robot vs Target")
-        self.ax.set_xlabel("X")
-        self.ax.set_ylabel("Y")
-        self.ax.legend()
-        self.ax.grid()
+        self.point_robot.set_data([self.x], [self.y])
+        self.point_target.set_data([self.x_d], [self.y_d])
+
+        self.ax.relim()
+        self.ax.autoscale_view()
+
+        plt.draw()
         plt.pause(0.001)
 
     def stop_handler(self, signum, frame):
