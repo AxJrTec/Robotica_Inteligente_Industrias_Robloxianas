@@ -16,12 +16,13 @@ class OdometryRobot(Node):
         self._l = 0.17
         self._r = 0.05
         self._sample_time = 0.01
-        self.rate = 100.0 #Hz
+        self.rate = 50.0 #Hz
 
         #Variables to be used
         self.v_r = 0.0
         self.v_l = 0.0
         self.V = 0.0
+        self.Omega = 0.0
 
         #Messages to be used
         self.wr = Float32()
@@ -53,11 +54,11 @@ class OdometryRobot(Node):
     # Callbacks
     def encR_callback(self, msg):
         self.wr = msg
-        self.get_logger().info(f'Vel Derecha: self.wr.data')
+        self.get_logger().info(f'Vel Derecha: {self.wr.data}')
 
     def encL_callback(self, msg):
         self.wl = msg
-        self.get_logger().info(f'Vel Izquierda: self.wl.data')
+        self.get_logger().info(f'Vel Izquierda: {self.wl.data}')
 
     def run(self):
         if self.first:
@@ -81,14 +82,15 @@ class OdometryRobot(Node):
             self.Omega = (1.0 / self._l) * (self.v_r - self.v_l)
 
             self.Th += self.Omega * dt
+            self.Th = np.arctan2(np.sin(self.Th), np.cos(self.Th))
             self.X += self.V * np.cos(self.Th) * dt
             self.Y += self.V * np.sin(self.Th) * dt
 
             self.last_time = current_time
 
             self.publish_odometry()
-            self.get_logger().info(f'Vel_L:{self.V} Vel_A{self.Omega}')
-            self.get_logger().info(f'X:{self.X} Y{self.Y} tetha{self.Th}')
+            self.get_logger().info(f'Vel_L:{self.V}, Vel_A:{self.Omega}')
+            self.get_logger().info(f'X:{self.X} Y:{self.Y} tetha:{self.Th}')
 
 
     def publish_odometry(self):
