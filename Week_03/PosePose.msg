@@ -1,11 +1,6 @@
-float32[] x_puntos
-float32[] y_puntos
-float32[] theta_puntos
+geometry_msgs/Pose current_goal
+geometry_msgs/Pose next_goal
 
-float32[] tiempos_giro
-float32[] tiempos_avance
-
-float32 theta_final
-
-float32[] vel_angular
-float32[] vel_lineal
+float64 velocity
+string move_type
+bool is_reachable
