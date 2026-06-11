@@ -16,7 +16,7 @@ KNOWN_SIGNS = {
     'roundabout',
     'forward',
     'giveway',
-    'construccion',
+    'construction',
     'turnleftahead',
     'turnrightahead',
 }
